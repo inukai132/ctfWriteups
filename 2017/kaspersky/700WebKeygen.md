@@ -1450,7 +1450,7 @@ Output
 
 Now we can properly begin debugging the assembly code. I'm using Vivaldi which uses the same debugger as Chrome. First load the local copy of the challenge with the Javascript deobfuscated. Now open the Inspect console and go to the Sources tab to get to the Javascript debugger. Place a breakpoint on line 341. You'll also want the programCounter as a Watch variable. I also put some of the registers as Watches. 
 
-![](./img/700WebKeygen-1.jpg)
+![](./img/700WebKeygen-1.png)
 
 Breakpoints in the assembly can be set by Editing the line 341 breakpoint to only trigger when programCounter is a specific value. There are two primary sections of the program that check the password. One, starting at `0x04c7`, verifies that the password meets certain requirements. The second, starting at `0x03a9` uses that password as an XOR key to decrypt the flag. 
 
@@ -1466,7 +1466,7 @@ Just before the function returns the block is XOR'd with 0xFFFFFFFF to get the i
 After the function completes and returns, the block is stored in register 0. On line `0x0377` it is tested with `0x33e5ae40` and if it is not equal, the program enters its fail state. We can work backwards to get a relationship for the last 4 blocks.  
 We know the last block must be `0x33e5ae40 ^ 0xffffffff = 0xcc1a51bf`. Since each block is right shifted, the first byte is always 0. This means the key from the pad must start with `0xcc`. The index of that key is `0xDF`, and the key is `0xcc0c7795`. We can find the last 3 bytes of the previous block by XOR'ing the current block with the key. `0xcc0c7795 ^ 0xcc1a51bf = 0x0016262a`. We can work backwards to find the last 4 strings, but beyond that we need more information. Since we know the string indexes, once we know the first 4 characters, we can easily solve for the last 4. I set up a Google Sheets spreadsheet to help me since Google Sheets can XOR numbers, index into a list, and easily set up complex relationships. 
 
-![](./img/700WebKeygen-2.jpg)
+![](./img/700WebKeygen-2.png)
 
 We can find the missing values by looking at the second part of the program.  
 
@@ -1474,10 +1474,10 @@ We can find the missing values by looking at the second part of the program.
 
 Flag recovery happens on line `0x03a9`, but before that the encoded flag is loaded into memory starting on line `0x001d`. The first four bytes of the encoded flag are `73 14 20 17`. Knowing that the flag will start with `KLCTF` we can XOR to get the first 4 characters `8XcC`. Plugging those into the spreadsheet gives us the key `8XcCDUhG`
 
-![](./img/700WebKeygen-3.jpg)
+![](./img/700WebKeygen-3.png)
 
 Typing that into the box reveals the flag. 
 
-![](./img/700WebKeygen-4.jpg)
+![](./img/700WebKeygen-4.png)
 
 ###### Tylor Childers
